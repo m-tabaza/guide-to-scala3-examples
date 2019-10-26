@@ -1,3 +1,4 @@
+// Intersection Types
 
 trait A  {
   val a: String
@@ -11,6 +12,8 @@ case class C(a: String, b: Int)
   extends A with B
 
 def f(c: A & B) = c.a + " & " + c.b
+
+// Union Types
 
 val a = new A { val a = "Some String" }
 val b = new B { val b = 42 }
@@ -33,6 +36,7 @@ def h(v: A | Double | B | Boolean): String = v match {
   case bool: Boolean => s"Boolean value bool: $bool"
 }
 
+// Enums
 
 enum WeekDay {
   case Sunday, Monday, Tuesday, Wednesday, 
@@ -85,3 +89,28 @@ val expr = new Expr(
   new Term(new ConstFactor(true), Some(new NotFactor(false))), 
   Some(new Term(new ConstFactor(false), None))
 )
+
+// Givens
+
+trait Add[T] {
+  def add(x: T, y: T): T
+}
+
+given Add[C] {
+  def add(x: C, y: C) = C(x.a + y.a, x.b + y.b)
+}
+
+def zipAdd[T](xs: List[T], ys: List[T])(given a: Add[T]): List[T] = 
+  xs.zip(ys).map(a.add)
+
+given Int = 42
+
+def addMagicNumber(x: Int)(given magicNumber: Int) = x + magicNumber
+
+given Conversion[String, A] {
+  def apply(s: String) = new A { val a = s }
+}
+
+// Extension Methods
+
+def (x: T) +[T] (y: T)(given a: Add[T]) = a.add(x, y)
